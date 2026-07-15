@@ -66,36 +66,18 @@ pub fn isEqExact(a: term.Term, b: term.Term) bool {
 
 // VM extension for control flow - add these fields to your VM struct
 pub const ControlFlowState = struct {
-    // Call stack for CP (continuation pointer) and return addresses
-    // BEAM uses stack for Y regs and CP
-    call_stack: std.ArrayList(usize), // stack of return IPs
-    cp_stack: std.ArrayList(usize),   // stack of CPs (where to return to)
-
-    // Current CP - where return goes
+    // Current CP - where return goes (continuation pointer)
     cp: usize = 0,
 
     pub fn init(allocator: std.mem.Allocator) ControlFlowState {
+        _ = allocator;
         return ControlFlowState{
-            .call_stack = std.ArrayList(usize).init(allocator),
-            .cp_stack = std.ArrayList(usize).init(allocator),
             .cp = 0,
         };
     }
 
     pub fn deinit(self: *ControlFlowState) void {
-        self.call_stack.deinit();
-        self.cp_stack.deinit();
-    }
-
-    pub fn pushCall(self: *ControlFlowState, return_ip: usize) !void {
-        try self.call_stack.append(return_ip);
-        try self.cp_stack.append(self.cp);
-    }
-
-    pub fn popCall(self: *ControlFlowState) !usize {
-        if (self.call_stack.items.len == 0) return ControlFlowError.StackUnderflow;
-        const cp = self.cp_stack.pop() orelse return ControlFlowError.StackUnderflow;
-        self.cp = cp;
-        return self.call_stack.pop() orelse return ControlFlowError.StackUnderflow;
+        _ = self;
+        // No dynamic allocation in single stack model
     }
 };
